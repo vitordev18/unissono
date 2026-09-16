@@ -1,0 +1,13 @@
+# Normaliza tudo para LF no repositório e também na cópia de trabalho.
+# Sem isso, o autocrlf do Windows reescreve os arquivos como CRLF e o
+# Prettier (endOfLine: lf) reprova o projeto recém-clonado.
+* text=auto eol=lf
+
+# Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.otf binary

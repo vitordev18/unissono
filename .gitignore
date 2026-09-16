@@ -1,0 +1,32 @@
+# dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# builds nativos
+/ios
+/android
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# testes e cobertura
+coverage/
+
+# variáveis de ambiente (nunca versionar)
+.env
+.env.*
+!.env.example
+
+# sistema / editor
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
