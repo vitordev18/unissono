@@ -239,7 +239,9 @@ velocidade = (altura_conteúdo − altura_viewport) / duração_s   [px/s]
 velocidade_efetiva = velocidade × multiplicador_usuário (0,25×–3×)
 ```
 
-Hook `useAutoScroll({ contentHeight, viewportHeight, durationSeconds })` expõe `play/pause/setMultiplier/offset`; implementado com `requestAnimationFrame` + `scrollTo` (ou Reanimated se medições mostrarem jank — decisão na Fase 5). Lógica de cálculo fica em função pura testável.
+**Implementado na Fase 5.** O cálculo puro mora em `src/utils/auto-scroll.ts` (duração estimada, velocidade, próximo deslocamento, limites do multiplicador) e o laço de animação em `src/features/cifras/hooks/use-auto-scroll.ts`, com `requestAnimationFrame` + `scrollTo`. O agendador de quadros é injetável, o que permite testar o laço com um relógio controlado pelo teste, sem timers falsos e sem esperar tempo real.
+
+Enquanto não há vídeo vinculado (Fase 6), a duração vem do BPM e da quantidade de linhas — uma linha ≈ um compasso. É heurística assumida: o ajuste fino fica com o músico, no controle de velocidade de 0,25× a 3×. Encostar o dedo na cifra pausa a rolagem.
 
 ## 8. Modelo de dados — ajustes propostos (DP-08)
 

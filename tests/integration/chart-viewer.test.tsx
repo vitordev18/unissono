@@ -129,3 +129,54 @@ describe('ChartViewerScreen', () => {
     expect(await screen.findByText('Esta música ainda não tem cifra.')).toBeOnTheScreen();
   });
 });
+
+describe('ChartViewerScreen · rolagem automática', () => {
+  beforeEach(() => {
+    delete mockParametros.tom;
+    useReaderPrefs.setState({ fontSize: 18, showChords: true, accidental: 'pelo-tom' });
+  });
+
+  it('começa parada, em 1×', async () => {
+    await renderWithProviders(<ChartViewerScreen />);
+    await screen.findByText('Música de teste A');
+
+    expect(screen.getByLabelText('Iniciar rolagem')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Velocidade da rolagem')).toHaveTextContent('1×');
+    expect(screen.getByLabelText('Progresso da rolagem')).toBeOnTheScreen();
+  });
+
+  it('alterna entre iniciar e pausar', async () => {
+    const usuario = userEvent.setup();
+
+    await renderWithProviders(<ChartViewerScreen />);
+    await screen.findByText('Música de teste A');
+
+    await usuario.press(screen.getByLabelText('Iniciar rolagem'));
+
+    expect(await screen.findByLabelText('Pausar rolagem')).toBeOnTheScreen();
+
+    await usuario.press(screen.getByLabelText('Pausar rolagem'));
+
+    expect(await screen.findByLabelText('Iniciar rolagem')).toBeOnTheScreen();
+  });
+
+  it('ajusta a velocidade em passos de 0,25', async () => {
+    const usuario = userEvent.setup();
+
+    await renderWithProviders(<ChartViewerScreen />);
+    await screen.findByText('Música de teste A');
+
+    await usuario.press(screen.getByLabelText('Aumentar a velocidade'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Velocidade da rolagem')).toHaveTextContent('1,25×');
+    });
+
+    await usuario.press(screen.getByLabelText('Diminuir a velocidade'));
+    await usuario.press(screen.getByLabelText('Diminuir a velocidade'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Velocidade da rolagem')).toHaveTextContent('0,75×');
+    });
+  });
+});

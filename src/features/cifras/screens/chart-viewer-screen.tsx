@@ -1,13 +1,24 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  View,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
+import { AutoScrollBar } from '@/features/cifras/components/autoscroll-bar';
 import { ChartView } from '@/features/cifras/components/chart-view';
 import { ReaderToolbar } from '@/features/cifras/components/reader-toolbar';
+import { useAutoScroll } from '@/features/cifras/hooks/use-auto-scroll';
 import { useSongChart } from '@/features/cifras/hooks/use-song-chart';
 import { useReaderPrefs } from '@/store/reader-prefs';
+import { estimateDurationSeconds } from '@/utils/auto-scroll';
 import {
   formatKey,
   normalizeSemitones,
@@ -22,6 +33,9 @@ export function ChartViewerScreen() {
   const { data, isPending, isError, error } = useSongChart(id);
   const { fontSize, showChords, accidental } = useReaderPrefs();
   const [ajuste, setAjuste] = useState<number | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const [alturaDoConteudo, setAlturaDoConteudo] = useState(0);
+  const [alturaVisivel, setAlturaVisivel] = useState(0);
 
   const documentoOriginal = data?.document ?? null;
 
@@ -50,6 +64,32 @@ export function ChartViewerScreen() {
         : transposeChart(documentoOriginal, { semitones: semitons }),
     [documentoOriginal, semitons],
   );
+
+  const totalDeLinhas = useMemo(
+    () =>
+      (documentoOriginal?.sections ?? []).reduce(
+        (total, section) => total + section.lines.length,
+        0,
+      ),
+    [documentoOriginal],
+  );
+
+  // Sem vídeo vinculado (Fase 6), a duração vem do andamento da música.
+  const duracaoEstimada = estimateDurationSeconds({
+    bpm: data?.song.bpm ?? null,
+    lineCount: totalDeLinhas,
+  });
+
+  const aplicarRolagem = useCallback((offset: number) => {
+    scrollRef.current?.scrollTo({ y: offset, animated: false });
+  }, []);
+
+  const autoScroll = useAutoScroll({
+    contentHeight: alturaDoConteudo,
+    viewportHeight: alturaVisivel,
+    durationSeconds: duracaoEstimada,
+    onScroll: aplicarRolagem,
+  });
 
   if (isPending) {
     return (
@@ -124,7 +164,24 @@ export function ChartViewerScreen() {
           }}
         />
 
-        <ScrollView contentContainerClassName="pb-8">
+        <ScrollView
+          ref={scrollRef}
+          scrollEventThrottle={16}
+          contentContainerClassName="pb-8"
+          onLayout={(evento: LayoutChangeEvent) => {
+            setAlturaVisivel(evento.nativeEvent.layout.height);
+          }}
+          onContentSizeChange={(_largura, altura) => {
+            setAlturaDoConteudo(altura);
+          }}
+          onScrollBeginDrag={() => {
+            // Encostou o dedo na cifra: a rolagem automática sai do caminho.
+            autoScroll.pause();
+          }}
+          onScroll={(evento: NativeSyntheticEvent<NativeScrollEvent>) => {
+            autoScroll.sincronizarOffset(evento.nativeEvent.contentOffset.y);
+          }}
+        >
           <ChartView
             document={documento}
             fontSize={fontSize}
@@ -132,6 +189,16 @@ export function ChartViewerScreen() {
             accidental={accidental}
           />
         </ScrollView>
+
+        <AutoScrollBar
+          rolando={autoScroll.rolando}
+          multiplicador={autoScroll.multiplicador}
+          progresso={autoScroll.progresso}
+          onToggle={autoScroll.toggle}
+          onAcelerar={autoScroll.acelerar}
+          onDesacelerar={autoScroll.desacelerar}
+          onReiniciar={autoScroll.reiniciar}
+        />
       </View>
     </Screen>
   );

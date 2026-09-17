@@ -40,15 +40,15 @@ fica no banco porque a transposição do app depende dela.
 Membro do ministério. **`id` é o próprio `auth.users.id`** — não existe coluna `auth_user_id`,
 o que deixa toda política de RLS na forma `id = auth.uid()`, sem junção.
 
-| Coluna                      | Tipo        | Regras                                                   |
-| --------------------------- | ----------- | -------------------------------------------------------- |
-| `id`                        | uuid PK     | FK → `auth.users(id)`, `on delete cascade`               |
-| `name`                      | text        | 2–120 caracteres (após `btrim`)                          |
-| `role`                      | `user_role` | padrão `musico`; só líder altera (trigger)               |
-| `instrument`                | text        | 2–60 caracteres, opcional                                |
-| `avatar_url`                | text        | precisa começar com `https://`                           |
-| `is_active`                 | boolean     | padrão `true`; desativar preserva o histórico de escalas |
-| `created_at` / `updated_at` | timestamptz | `updated_at` por trigger                                 |
+| Coluna                      | Tipo        | Regras                                                                                                       |
+| --------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+| `id`                        | uuid PK     | FK → `auth.users(id)`, `on delete cascade`                                                                   |
+| `name`                      | text        | 2–120 caracteres (após `btrim`)                                                                              |
+| `role`                      | `user_role` | padrão `musico`; só líder altera (trigger)                                                                   |
+| `instrument`                | text        | 2–60 caracteres, opcional                                                                                    |
+| `avatar_url`                | text        | precisa começar com `https://`                                                                               |
+| `is_active`                 | boolean     | padrão **`false`**: o membro só entra depois que um líder o ativa; desativar preserva o histórico de escalas |
+| `created_at` / `updated_at` | timestamptz | `updated_at` por trigger                                                                                     |
 
 ### `songs`
 

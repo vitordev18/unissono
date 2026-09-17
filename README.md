@@ -3,7 +3,7 @@
 App mobile (Android + iOS) para o ministério de louvor: escalas de culto, repertório,
 cifras com transposição e rolagem automática, vídeos de referência e treino pessoal.
 
-> **Fase atual: 4 — cifras (visualizador, busca, importação e transposição).** O README completo (setup, variáveis de ambiente, contribuição,
+> **Fase atual: 5 — rolagem automática da cifra.** O README completo (setup, variáveis de ambiente, contribuição,
 > licença) é entregue na Fase 13. A documentação de produto e arquitetura já está em `docs/`.
 
 ## Documentação

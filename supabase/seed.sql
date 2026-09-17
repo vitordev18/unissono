@@ -50,8 +50,17 @@ select
 from auth.users u
 where u.email like '%@unissono.test';
 
--- O perfil nasce pelo trigger on_auth_user_created com papel 'musico'.
--- A promoção a líder é feita aqui, no papel de administrador do banco.
+-- O perfil nasce pelo trigger on_auth_user_created com papel 'musico' e
+-- inativo (ver 20260918000100_profiles_inactive_by_default.sql). Ativar e
+-- promover é trabalho de administrador do banco — é o bootstrap do ministério.
+update public.profiles
+   set is_active = true
+ where id in (
+   '11111111-1111-4111-8111-111111111111',
+   '22222222-2222-4222-8222-222222222222',
+   '33333333-3333-4333-8333-333333333333'
+ );
+
 update public.profiles
    set role = 'lider'
  where id = '11111111-1111-4111-8111-111111111111';
