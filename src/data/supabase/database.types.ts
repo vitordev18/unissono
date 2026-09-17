@@ -33,6 +33,8 @@ type SongRow = {
   bpm: number | null;
   tags: string[];
   youtube_url: string | null;
+  /** Coluna gerada: título + artista sem acento, para a busca por trigram. */
+  search_text: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

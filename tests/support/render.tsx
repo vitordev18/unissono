@@ -4,20 +4,31 @@ import type { ReactElement, ReactNode } from 'react';
 
 import type { AuthRepository } from '@/domain/repositories/auth-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
+import type { SongChartRepository } from '@/domain/repositories/song-chart-repository';
+import type { SongRepository } from '@/domain/repositories/song-repository';
 import { createContainerFrom, type Repositories } from '@/services/container';
 import { ContainerProvider } from '@/services/container-provider';
 
-import { createFakeAuthRepository, createFakeProfileRepository } from './fakes';
+import {
+  createFakeAuthRepository,
+  createFakeProfileRepository,
+  createFakeSongChartRepository,
+  createFakeSongRepository,
+} from './fakes';
 
 export interface RenderOptions {
   auth?: AuthRepository;
   profiles?: ProfileRepository;
+  songs?: SongRepository;
+  charts?: SongChartRepository;
 }
 
 export function createTestRepositories(options: RenderOptions = {}): Repositories {
   return {
     auth: options.auth ?? createFakeAuthRepository(),
     profiles: options.profiles ?? createFakeProfileRepository(),
+    songs: options.songs ?? createFakeSongRepository(),
+    charts: options.charts ?? createFakeSongChartRepository(),
   };
 }
 

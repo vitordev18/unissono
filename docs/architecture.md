@@ -168,6 +168,8 @@ classDiagram
 - **Acidentes (`KeySignatureAccidentals`, padrão):** tons de destino F, B♭, E♭, A♭, D♭, G♭ e relativos menores (Dm, Gm, Cm, Fm, B♭m, E♭m) usam bemóis; demais usam sustenidos. O usuário pode forçar `PreferSharps`/`PreferFlats`.
 - **Teste obrigatório (Fase 4):** matriz 12 tons × 12 deslocamentos, ida-e-volta idempotente, acordes com baixo e extensões.
 
+**Implementado na Fase 4** em `src/utils/chords`: `notes.ts` (classes de altura, armadura e grafia), `chord.ts` (leitura e formatação), `accidentals.ts` (as três Strategies), `transpose.ts`, `serialize.ts` e `parsers/` com o registry. As Strategies são objetos congelados, não classes — mesma substituibilidade, menos cerimônia. O reconhecimento de linha de acordes trata um caso específico do português: "A", "E" e "Da" são palavras e também acordes, então uma linha de um token só conta como cifra se tiver sufixo ou acidente.
+
 ### 5.3 Adapter — YouTube
 
 ```ts
