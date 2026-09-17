@@ -68,7 +68,7 @@ flowchart TB
     FEAT --> IFR
 ```
 
-### 2.1 Regras de import (verificadas por ESLint `import/no-restricted-paths` na Fase 1)
+### 2.1 Regras de import (verificadas por ESLint `no-restricted-imports` em `eslint.config.js`)
 
 | Camada                      | Pode importar                                                                                                | Não pode importar                                                            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
