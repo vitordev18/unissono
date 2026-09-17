@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-import type { TestDatabase } from './database.types';
+import type { Database } from '../../src/data/supabase/database.types';
 
 import { supabaseAnonKey, supabaseUrl } from './env';
 
@@ -32,10 +32,10 @@ export const seedIds = {
 } as const;
 
 /** Cliente tipado pelo esquema em database.types.ts (substituído na Fase 3). */
-export type TestClient = ReturnType<typeof createClient<TestDatabase>>;
+export type TestClient = ReturnType<typeof createClient<Database>>;
 
 export function createAnonymousClient(): TestClient {
-  return createClient<TestDatabase>(supabaseUrl, supabaseAnonKey, {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }

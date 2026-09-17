@@ -290,12 +290,12 @@ Detalhamento completo em `docs/database-schema.md` (Fase 2).
 
 ### 9.2 Segredos e sessão
 
-| Item                                | Onde vive                                                          | Observação                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supabase URL + anon/publishable key | `.env` → `EXPO_PUBLIC_*`                                           | Públicas por design; a segurança vem da RLS.                                                                                                |
-| Supabase service role key           | **Somente** secrets das Edge Functions                             | Nunca no app nem no repositório.                                                                                                            |
-| YouTube Data API key                | Secret da Edge Function `youtube-search`                           | Restringir a chave à YouTube Data API no Google Cloud.                                                                                      |
-| Sessão (JWT/refresh)                | AsyncStorage cifrado com chave AES guardada em `expo-secure-store` | O SecureStore tem limite de tamanho por item que a sessão pode exceder; padrão recomendado pelo Supabase. Dependências a aprovar na Fase 3. |
+| Item                                | Onde vive                                                   | Observação                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase URL + anon/publishable key | `.env` → `EXPO_PUBLIC_*`                                    | Públicas por design; a segurança vem da RLS.                                                                                                                                                                                                                                                                          |
+| Supabase service role key           | **Somente** secrets das Edge Functions                      | Nunca no app nem no repositório.                                                                                                                                                                                                                                                                                      |
+| YouTube Data API key                | Secret da Edge Function `youtube-search`                    | Restringir a chave à YouTube Data API no Google Cloud.                                                                                                                                                                                                                                                                |
+| Sessão (JWT/refresh)                | `expo-secure-store` (Keychain/Keystore), fatiada em pedaços | Implementado em `src/data/supabase/secure-session-storage.ts`. O SecureStore guarda valores pequenos e a sessão passa do limite; em vez de cifrar à mão e guardar no AsyncStorage em texto claro, o valor é fatiado e cada pedaço vai para o armazenamento seguro da plataforma. Pedaço faltando ⇒ sessão descartada. |
 
 `.env` no `.gitignore`; `.env.example` sem valores; `gitleaks` no CI (a aprovar na Fase 1).
 
@@ -329,12 +329,13 @@ Detalhamento completo em `docs/database-schema.md` (Fase 2).
 
 ## 12. ADRs resumidos
 
-| ADR | Decisão                          | Alternativa descartada              | Trade-off                                                                 |
-| --- | -------------------------------- | ----------------------------------- | ------------------------------------------------------------------------- |
-| 001 | Expo Router                      | React Navigation direto             | Menos controle fino sobre navegadores; ganho em rotas tipadas/deep links. |
-| 002 | NativeWind                       | styled-components                   | Depende de pipeline Tailwind/Babel; ganho em tema e performance.          |
-| 003 | Busca YouTube via Edge Function  | Chave no app                        | Mais uma peça para deploy; chave protegida e cota controlada.             |
-| 004 | `schedule_songs` separado        | `song_id` em `schedule_assignments` | Uma tabela a mais; modelo sem duplicação.                                 |
-| 005 | Maestro                          | Detox                               | Menos controle sobre sincronização interna; setup muito mais simples.     |
-| 006 | Single-tenant                    | `ministry_id` desde já              | Migração futura para multi-igreja (ROADMAP).                              |
-| 007 | ChordPro como formato persistido | JSON do `ChartDocument`             | Parse a cada leitura (barato); formato aberto e exportável.               |
+| ADR | Decisão                          | Alternativa descartada              | Trade-off                                                                                                         |
+| --- | -------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 001 | Expo Router                      | React Navigation direto             | Menos controle fino sobre navegadores; ganho em rotas tipadas/deep links.                                         |
+| 002 | NativeWind                       | styled-components                   | Depende de pipeline Tailwind/Babel; ganho em tema e performance.                                                  |
+| 003 | Busca YouTube via Edge Function  | Chave no app                        | Mais uma peça para deploy; chave protegida e cota controlada.                                                     |
+| 004 | `schedule_songs` separado        | `song_id` em `schedule_assignments` | Uma tabela a mais; modelo sem duplicação.                                                                         |
+| 005 | Maestro                          | Detox                               | Menos controle sobre sincronização interna; setup muito mais simples.                                             |
+| 006 | Single-tenant                    | `ministry_id` desde já              | Migração futura para multi-igreja (ROADMAP).                                                                      |
+| 007 | ChordPro como formato persistido | JSON do `ChartDocument`             | Parse a cada leitura (barato); formato aberto e exportável.                                                       |
+| 008 | Sessão fatiada no SecureStore    | AsyncStorage + AES (`aes-js`)       | Código próprio de fatiamento a manter, mas sem duas dependências novas e sem token em texto claro no dispositivo. |

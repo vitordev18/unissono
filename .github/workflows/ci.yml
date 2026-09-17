@@ -69,3 +69,25 @@ jobs:
       - name: Testes de RLS
         if: steps.credenciais.outputs.disponivel == 'true'
         run: npm run test:rls -- --ci
+
+  bundle:
+    name: Bundle do app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      # Typecheck e testes não provam que o app empacota: erros de Metro,
+      # NativeWind ou rota só aparecem no bundle.
+      - name: Empacotar para Android
+        run: npx expo export --platform android --output-dir "${{ runner.temp }}/bundle"
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}

@@ -1,10 +1,14 @@
 /**
- * Tipagem mínima do banco para os testes de RLS.
+ * Tipagem do esquema do Postgres consumida pelo cliente do Supabase.
  *
- * Temporária: na Fase 3 o arquivo gerado pelo Supabase
- * (`src/data/supabase/database.types.ts`) passa a ser a fonte única de tipos e
- * este arquivo é removido. Aqui só existem as colunas que os testes tocam —
- * sem isso, o cliente do Supabase infere `never` nos payloads de update.
+ * Mantida à mão por enquanto. Para regerar a partir do banco:
+ *   npx supabase login
+ *   npx supabase gen types typescript --project-id <ref> --schema public
+ * (a CLI exige um token de acesso pessoal, que não fica no repositório).
+ *
+ * Precisa ser `type`, e não `interface`: interfaces não ganham index
+ * signature implícita e não satisfazem as restrições genéricas do supabase-js,
+ * o que faz os payloads de update virarem `never`.
  */
 
 export type UserRole = 'lider' | 'musico';
@@ -121,7 +125,7 @@ type Tabela<Row> = {
   Relationships: [];
 };
 
-export type TestDatabase = {
+export type Database = {
   // O cliente do Supabase usa esta chave para escolher o dialeto do PostgREST.
   __InternalSupabase: {
     PostgrestVersion: '14.5';
