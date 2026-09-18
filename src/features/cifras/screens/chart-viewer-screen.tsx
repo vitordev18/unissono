@@ -14,6 +14,7 @@ import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { AutoScrollBar } from '@/features/cifras/components/autoscroll-bar';
 import { ChartView } from '@/features/cifras/components/chart-view';
+import { KeepScreenOn } from '@/features/cifras/components/keep-screen-on';
 import { ReaderToolbar } from '@/features/cifras/components/reader-toolbar';
 import { useAutoScroll } from '@/features/cifras/hooks/use-auto-scroll';
 import { useSongChart } from '@/features/cifras/hooks/use-song-chart';
@@ -189,6 +190,8 @@ export function ChartViewerScreen() {
             accidental={accidental}
           />
         </ScrollView>
+
+        {autoScroll.rolando ? <KeepScreenOn /> : null}
 
         <AutoScrollBar
           rolando={autoScroll.rolando}

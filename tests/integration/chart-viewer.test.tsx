@@ -9,6 +9,14 @@ import { renderWithProviders } from '../support/render';
 // O prefixo "mock" é exigido pelo Jest para variáveis usadas na fábrica do mock.
 const mockParametros: { id: string; tom?: string } = { id: musicaDeTeste.id };
 
+const mockUseKeepAwake = jest.fn();
+
+jest.mock('expo-keep-awake', () => ({
+  useKeepAwake: (tag?: string) => {
+    mockUseKeepAwake(tag);
+  },
+}));
+
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
   useLocalSearchParams: () => mockParametros,
@@ -178,5 +186,39 @@ describe('ChartViewerScreen · rolagem automática', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Velocidade da rolagem')).toHaveTextContent('0,75×');
     });
+  });
+});
+
+describe('ChartViewerScreen · tela acesa', () => {
+  beforeEach(() => {
+    delete mockParametros.tom;
+    mockUseKeepAwake.mockClear();
+  });
+
+  it('só segura a tela acesa enquanto a cifra está rolando', async () => {
+    const usuario = userEvent.setup();
+
+    await renderWithProviders(<ChartViewerScreen />);
+    await screen.findByText('Música de teste A');
+
+    // Parada: o sistema pode apagar a tela normalmente.
+    expect(mockUseKeepAwake).not.toHaveBeenCalled();
+
+    await usuario.press(screen.getByLabelText('Iniciar rolagem'));
+
+    await waitFor(() => {
+      expect(mockUseKeepAwake).toHaveBeenCalledWith('rolagem-da-cifra');
+    });
+
+    await usuario.press(await screen.findByLabelText('Pausar rolagem'));
+    mockUseKeepAwake.mockClear();
+
+    // Nova renderização depois da pausa não volta a pedir a tela acesa.
+    await usuario.press(screen.getByLabelText('Aumentar a fonte'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Iniciar rolagem')).toBeOnTheScreen();
+    });
+    expect(mockUseKeepAwake).not.toHaveBeenCalled();
   });
 });
