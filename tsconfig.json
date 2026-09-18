@@ -13,5 +13,7 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"],
-  "exclude": ["node_modules"]
+  // As Edge Functions rodam em Deno, com outro conjunto de globais e imports
+  // (jsr:). São verificadas no deploy do Supabase, não por este tsconfig.
+  "exclude": ["node_modules", "supabase/functions"]
 }

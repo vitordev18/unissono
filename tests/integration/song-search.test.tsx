@@ -1,4 +1,4 @@
-import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent, screen, userEvent, waitFor } from '@testing-library/react-native';
 
 import type { Song } from '@/domain/entities/song';
 import { SongSearchScreen } from '@/features/cifras/screens/song-search-screen';
@@ -39,14 +39,14 @@ describe('SongSearchScreen', () => {
   });
 
   it('filtra pelo termo digitado', async () => {
-    const usuario = userEvent.setup();
-
     await renderWithProviders(<SongSearchScreen />, {
       songs: createFakeSongRepository([musicaDeTeste, outraMusica]),
     });
     await screen.findByText('Música de teste A');
 
-    await usuario.type(screen.getByLabelText('Buscar música'), 'coração');
+    // O que está em teste é o filtro, não a digitação tecla a tecla: uma única
+    // mudança de texto tira a dependência de quão carregada está a máquina.
+    await fireEvent.changeText(screen.getByLabelText('Buscar música'), 'coração');
 
     await waitFor(
       () => {
@@ -58,14 +58,12 @@ describe('SongSearchScreen', () => {
   });
 
   it('avisa quando a busca não encontra nada', async () => {
-    const usuario = userEvent.setup();
-
     await renderWithProviders(<SongSearchScreen />, {
       songs: createFakeSongRepository([musicaDeTeste]),
     });
     await screen.findByText('Música de teste A');
 
-    await usuario.type(screen.getByLabelText('Buscar música'), 'inexistente');
+    await fireEvent.changeText(screen.getByLabelText('Buscar música'), 'inexistente');
 
     expect(
       await screen.findByText('Nenhuma música encontrada.', undefined, { timeout: 3000 }),

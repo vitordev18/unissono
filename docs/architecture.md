@@ -180,6 +180,8 @@ export interface VideoSearchRepository {
 ```
 
 `YouTubeSearchAdapter` chama a Edge Function `youtube-search` (DP-04), valida a resposta com Zod e converte para `VideoSearchResult { videoId, title, channel, thumbnailUrl, durationSeconds }`. Em teste, `FakeVideoSearchRepository`.
+
+**Implementado na Fase 6.** A função confere, nesta ordem: sessão (401), papel de líder ativo (403) e só então a configuração da chave (500) — quem não pode buscar não descobre se a busca está configurada. A consulta de duração (`videos.list`, 1 unidade) acompanha cada busca porque a duração real do vídeo é a melhor base para a rolagem automática. Passo a passo da chave em [youtube-setup.md](./youtube-setup.md).
 O player usa a **YouTube IFrame Player API** dentro de `react-native-webview` (encapsulado por `react-native-youtube-iframe` — dependência a aprovar na Fase 6), expondo `play/pause/seekTo/setPlaybackRate/getCurrentTime`. Proibido: download, extração de áudio, ocultar controles/marca do player, reprodução em segundo plano.
 
 ### 5.4 Observer — Realtime

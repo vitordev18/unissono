@@ -3,15 +3,19 @@ import { ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
+import { videoIdFromUrl } from '@/domain/entities/video';
 import { canAccess } from '@/domain/use-cases/authorize';
 import { useCurrentMember } from '@/features/auth/hooks/use-current-member';
 import { useSongChart } from '@/features/cifras/hooks/use-song-chart';
+import { VideoPlayer } from '@/features/youtube/components/video-player';
+import { useUnlinkVideo } from '@/features/youtube/hooks/use-link-video';
 
 export function SongDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isPending, isError, error } = useSongChart(id);
   const { data: member } = useCurrentMember();
+  const desvincular = useUnlinkVideo(id);
   const ehLider = canAccess('lideranca', member?.profile ?? null);
 
   if (isPending) {
@@ -36,6 +40,7 @@ export function SongDetailScreen() {
   }
 
   const { song, chart } = data;
+  const videoId = videoIdFromUrl(song.youtubeUrl);
   const detalhes = [
     song.artist,
     song.defaultKey,
@@ -92,13 +97,40 @@ export function SongDetailScreen() {
           </Text>
         </View>
 
-        <View className="rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800">
+        <View className="gap-3 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800">
           <Text className="text-sm font-semibold uppercase text-neutral-500 dark:text-neutral-400">
             Vídeo de referência
           </Text>
-          <Text className="mt-1 text-base text-neutral-700 dark:text-neutral-300">
-            A busca no YouTube chega na Fase 6.
-          </Text>
+
+          {videoId === null ? (
+            <Text className="text-base text-neutral-700 dark:text-neutral-300">
+              Nenhum vídeo vinculado.
+            </Text>
+          ) : (
+            <VideoPlayer videoId={videoId} />
+          )}
+
+          {ehLider ? (
+            <View className="gap-2">
+              <Button
+                label={videoId === null ? 'Buscar vídeo no YouTube' : 'Trocar vídeo'}
+                variante="secundario"
+                onPress={() => {
+                  router.push(`/musicas/${id}/youtube`);
+                }}
+              />
+              {videoId === null ? null : (
+                <Button
+                  label="Remover vídeo"
+                  variante="secundario"
+                  carregando={desvincular.isPending}
+                  onPress={() => {
+                    desvincular.mutate();
+                  }}
+                />
+              )}
+            </View>
+          ) : null}
         </View>
       </View>
     </Screen>

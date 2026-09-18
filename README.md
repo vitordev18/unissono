@@ -3,7 +3,7 @@
 App mobile (Android + iOS) para o ministério de louvor: escalas de culto, repertório,
 cifras com transposição e rolagem automática, vídeos de referência e treino pessoal.
 
-> **Fase atual: 5 — rolagem automática da cifra.** O README completo (setup, variáveis de ambiente, contribuição,
+> **Fase atual: 6 — vídeos do YouTube.** O README completo (setup, variáveis de ambiente, contribuição,
 > licença) é entregue na Fase 13. A documentação de produto e arquitetura já está em `docs/`.
 
 ## Documentação
@@ -12,6 +12,7 @@ cifras com transposição e rolagem automática, vídeos de referência e treino
 - [Arquitetura](docs/architecture.md) — camadas, padrões, modelo de dados, segurança
 - [Wireframes](docs/wireframes.md) — telas e navegação
 - [Esquema de dados](docs/database-schema.md) — tabelas, RLS e gatilhos
+- [Configurar o YouTube](docs/youtube-setup.md) — chave da API e segredo da Edge Function
 
 ## Stack
 

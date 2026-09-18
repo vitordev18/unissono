@@ -1,4 +1,4 @@
-import { NotFoundError } from '@/domain/entities/errors';
+import { ForbiddenError, NotFoundError } from '@/domain/entities/errors';
 import type { NewSong, Song } from '@/domain/entities/song';
 import type { SongFilter, SongRepository } from '@/domain/repositories/song-repository';
 
@@ -59,6 +59,26 @@ export function createSupabaseSongRepository(client: UnissonoClient): SongReposi
 
       if (error) {
         throw new Error(`Não foi possível salvar a música: ${error.message}`);
+      }
+
+      return rowToSong(data);
+    },
+
+    async setYoutubeUrl(id: string, youtubeUrl: string | null): Promise<Song> {
+      const { data, error } = await client
+        .from('songs')
+        .update({ youtube_url: youtubeUrl })
+        .eq('id', id)
+        .select(COLUNAS)
+        .maybeSingle();
+
+      if (error) {
+        throw new Error(`Não foi possível vincular o vídeo: ${error.message}`);
+      }
+
+      // Sem linha significa RLS: quem não é líder não altera o catálogo.
+      if (!data) {
+        throw new ForbiddenError('Apenas a liderança pode vincular o vídeo.');
       }
 
       return rowToSong(data);

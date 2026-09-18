@@ -2,10 +2,12 @@ import type { AuthSession, Credentials } from '@/domain/entities/auth';
 import { AuthError, NotFoundError } from '@/domain/entities/errors';
 import type { Profile } from '@/domain/entities/profile';
 import type { Song, SongChart } from '@/domain/entities/song';
+import type { VideoSearchResult } from '@/domain/entities/video';
 import type { AuthRepository } from '@/domain/repositories/auth-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { SongChartRepository } from '@/domain/repositories/song-chart-repository';
 import type { SongRepository } from '@/domain/repositories/song-repository';
+import type { VideoSearchRepository } from '@/domain/repositories/video-search-repository';
 
 export const perfilDoLider: Profile = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -176,6 +178,20 @@ export function createFakeSongRepository(musicas: Song[] = [musicaDeTeste]): Son
 
       return Promise.resolve(nova);
     },
+
+    setYoutubeUrl: (id, youtubeUrl) => {
+      const musica = porId.get(id);
+
+      if (!musica) {
+        return Promise.reject(new NotFoundError('Música não encontrada.'));
+      }
+
+      const atualizada: Song = { ...musica, youtubeUrl };
+
+      porId.set(id, atualizada);
+
+      return Promise.resolve(atualizada);
+    },
   };
 }
 
@@ -224,6 +240,38 @@ export function createFakeSongChartRepository(
       cifras.push(nova);
 
       return Promise.resolve(nova);
+    },
+  };
+}
+
+export const videoDeTeste: VideoSearchResult = {
+  videoId: 'ABCDEFGHIJK',
+  title: 'Música de teste A (ao vivo)',
+  channel: 'Canal de Teste',
+  thumbnailUrl: 'https://i.ytimg.com/vi/ABCDEFGHIJK/mqdefault.jpg',
+  durationSeconds: 250,
+};
+
+export function createFakeVideoSearchRepository(
+  resultados: VideoSearchResult[] = [videoDeTeste],
+): VideoSearchRepository {
+  return {
+    // Busca de verdade casa por palavra, não pela frase inteira: o termo
+    // sugerido pelo app é "título + artista" e quase nunca aparece literal no
+    // título do vídeo.
+    search: (termo) => {
+      const palavras = termo
+        .toLowerCase()
+        .split(/s+/)
+        .filter((palavra) => palavra.length >= 3);
+
+      return Promise.resolve(
+        resultados.filter((video) => {
+          const alvo = `${video.title} ${video.channel}`.toLowerCase();
+
+          return palavras.length === 0 || palavras.some((palavra) => alvo.includes(palavra));
+        }),
+      );
     },
   };
 }

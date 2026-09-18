@@ -113,6 +113,7 @@ module.exports = defineConfig([
       'android/**',
       'ios/**',
       'expo-env.d.ts',
+      'supabase/functions/**',
     ],
   },
 ]);

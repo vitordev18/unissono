@@ -2,11 +2,20 @@ import { createSupabaseAuthRepository } from '@/data/supabase/supabase-auth-repo
 import { createSupabaseProfileRepository } from '@/data/supabase/supabase-profile-repository';
 import { createSupabaseSongChartRepository } from '@/data/supabase/supabase-song-chart-repository';
 import { createSupabaseSongRepository } from '@/data/supabase/supabase-song-repository';
+import { createYouTubeSearchAdapter } from '@/data/youtube/youtube-search-adapter';
 import { createSupabaseClient, type ClientOptions } from '@/data/supabase/client';
 import type { AuthRepository } from '@/domain/repositories/auth-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { SongChartRepository } from '@/domain/repositories/song-chart-repository';
 import type { SongRepository } from '@/domain/repositories/song-repository';
+import type { VideoSearchRepository } from '@/domain/repositories/video-search-repository';
+import {
+  createLinkVideo,
+  createUnlinkVideo,
+  type LinkVideo,
+  type UnlinkVideo,
+} from '@/domain/use-cases/link-video';
+import { createSearchVideos, type SearchVideos } from '@/domain/use-cases/search-videos';
 import { createGetSongChart, type GetSongChart } from '@/domain/use-cases/get-song-chart';
 import { createImportChart, type ImportChart } from '@/domain/use-cases/import-chart';
 import { createSearchSongs, type SearchSongs } from '@/domain/use-cases/search-songs';
@@ -26,6 +35,7 @@ export interface Repositories {
   profiles: ProfileRepository;
   songs: SongRepository;
   charts: SongChartRepository;
+  videos: VideoSearchRepository;
 }
 
 export interface UseCases {
@@ -36,6 +46,9 @@ export interface UseCases {
   searchSongs: SearchSongs;
   getSongChart: GetSongChart;
   importChart: ImportChart;
+  searchVideos: SearchVideos;
+  linkVideo: LinkVideo;
+  unlinkVideo: UnlinkVideo;
 }
 
 export interface Container {
@@ -52,6 +65,7 @@ export function createContainer(options: ClientOptions = {}): Container {
     profiles: createSupabaseProfileRepository(client),
     songs: createSupabaseSongRepository(client),
     charts: createSupabaseSongChartRepository(client),
+    videos: createYouTubeSearchAdapter(client),
   });
 }
 
@@ -73,6 +87,9 @@ export function createContainerFrom(repositories: Repositories): Container {
         charts: repositories.charts,
       }),
       importChart: createImportChart({ charts: repositories.charts }),
+      searchVideos: createSearchVideos({ videos: repositories.videos }),
+      linkVideo: createLinkVideo({ songs: repositories.songs }),
+      unlinkVideo: createUnlinkVideo({ songs: repositories.songs }),
     },
   };
 }

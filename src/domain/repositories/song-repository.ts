@@ -10,4 +10,6 @@ export interface SongRepository {
   search(filter: SongFilter): Promise<Song[]>;
   getById(id: string): Promise<Song>;
   create(input: NewSong): Promise<Song>;
+  /** Vincula ou desvincula o vídeo de referência da música (US-30). */
+  setYoutubeUrl(id: string, youtubeUrl: string | null): Promise<Song>;
 }

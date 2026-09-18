@@ -6,6 +6,7 @@ import type { AuthRepository } from '@/domain/repositories/auth-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { SongChartRepository } from '@/domain/repositories/song-chart-repository';
 import type { SongRepository } from '@/domain/repositories/song-repository';
+import type { VideoSearchRepository } from '@/domain/repositories/video-search-repository';
 import { createContainerFrom, type Repositories } from '@/services/container';
 import { ContainerProvider } from '@/services/container-provider';
 
@@ -14,6 +15,7 @@ import {
   createFakeProfileRepository,
   createFakeSongChartRepository,
   createFakeSongRepository,
+  createFakeVideoSearchRepository,
 } from './fakes';
 
 export interface RenderOptions {
@@ -21,6 +23,7 @@ export interface RenderOptions {
   profiles?: ProfileRepository;
   songs?: SongRepository;
   charts?: SongChartRepository;
+  videos?: VideoSearchRepository;
 }
 
 export function createTestRepositories(options: RenderOptions = {}): Repositories {
@@ -29,6 +32,7 @@ export function createTestRepositories(options: RenderOptions = {}): Repositorie
     profiles: options.profiles ?? createFakeProfileRepository(),
     songs: options.songs ?? createFakeSongRepository(),
     charts: options.charts ?? createFakeSongChartRepository(),
+    videos: options.videos ?? createFakeVideoSearchRepository(),
   };
 }
 
